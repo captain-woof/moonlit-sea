@@ -4,6 +4,11 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
 import { Water } from "three/examples/jsm/objects/Water"
 import { GUI } from 'dat.gui'
 
+// Assets
+const sailboatModelGltf = "/models/sailboat/scene.gltf";
+const moonTextureImg = "/images/moon.jpg";
+const skyTextureImg = "/images/sky.webp";
+
 // Colors
 let blueColor = "#513873";
 let blueLightColor = "#455377";
@@ -56,7 +61,7 @@ async function init() {
     renderer.shadowMap.enabled = true;
 
     // Sailboat
-    sailboatMesh = await gltfLoader.loadAsync("models/sailboat/scene.gltf");
+    sailboatMesh = await gltfLoader.loadAsync(sailboatModelGltf);
     sailboatMesh.scene.position.set(0, 0, 0);
     sailboatMesh.scene.scale.set(0.0025, 0.0025, 0.0025);
     sailboatMesh.scene.rotation.set(0, -(Math.PI / 2), 0);
@@ -67,7 +72,7 @@ async function init() {
 
     // Moon
     let moonGeometry = new THREE.SphereGeometry(5, 75, 75);
-    let moonTexture = await textureLoader.loadAsync("/images/moon.jpg");
+    let moonTexture = await textureLoader.loadAsync(moonTextureImg);
     let moonMaterial = new THREE.MeshBasicMaterial({
         map: moonTexture
     });
@@ -89,7 +94,7 @@ async function init() {
 
     // Sky
     let skyGeometry = new THREE.SphereGeometry(10000, 200, 200, 0);
-    let skyTexture = await textureLoader.loadAsync("/images/sky.webp");
+    let skyTexture = await textureLoader.loadAsync(skyTextureImg);
     skyTexture.wrapS = skyTexture.wrapT = THREE.MirroredRepeatWrapping;
     skyTexture.repeat.set(6, 6);
     let skyMaterial = new THREE.MeshBasicMaterial({
