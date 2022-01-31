@@ -4,11 +4,17 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles/main.css">
+  <meta name="theme-color" content="#192e46" />
+  <meta name="description" content="A scene of a moonlit sea at night, created with Three.js." />
+  <meta name="keywords" content="Three.js, three.js example, sohail saha, captain woof" />
+  <meta name="author" content="Sohail Saha (captain-woof)" />
+  <meta name="apple-mobile-web-app-title" content="Moonlit Sea" />
   <title>Moonlit Sea</title>
 </head>
 
@@ -21,6 +27,31 @@
 
     <!-- Scene-->
     <canvas id="scene-canvas"></canvas>
+
+    <!-- Content -->
+    <div id="content">
+      <footer>
+        <!-- View on Github -->
+        <a href="https://github.com/captain-woof/moonlit-sea" id="view-on-github-link" target="_blank">
+          <button id="view-on-github-btn">
+            View on Github
+          </button>
+        </a>
+
+        <!-- Socials -->
+        <div id="socials-container">
+          <a href="https://twitter.com/realCaptainWoof" target="_blank">
+            <img src="/images/twitter.svg" alt="Twitter profile" class="social-button" />
+          </a>
+          <a href="https://www.linkedin.com/in/sohail-saha/" target="_blank">
+            <img src="/images/linkedin.svg" alt="Linkedin profile" class="social-button" />
+          </a>
+          <a href="https://github.com/captain-woof" target="_blank">
+            <img src="/images/github.svg" alt="Github profile" class="social-button" />
+          </a>
+        </div>
+      </footer>
+    </div>
   </div>
   <script type="module" src="/js/main.js"></script>
 </body>

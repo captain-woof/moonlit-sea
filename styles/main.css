@@ -102,6 +102,12 @@ h1 {
     line-height: var(--lh-min);
 }
 
+a {
+    text-decoration: none;
+    font-family: inherit;
+    color: inherit;
+}
+
 /* Styling classes */
 .container {
     height: 100vh;
@@ -118,6 +124,11 @@ h1 {
     inset: 0;
     transition: opacity 3s linear;
     opacity: 0;
+    cursor: grab;
+}
+
+.container #scene-canvas:active {
+    cursor: grabbing;
 }
 
 .container #scene-canvas.visible {
@@ -140,3 +151,57 @@ h1 {
     z-index: 999 !important;
 }
 
+.container #content {
+    z-index: 3;
+    position: absolute;
+}
+
+.container #content footer {
+    position: fixed;
+    transform: translate(-50%, 0);
+    bottom: 32px;
+    left: 50vw;
+    width: 90%;
+    justify-items: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.container #content footer #view-on-github-link {
+    grid-column: 2 / 3;
+}
+
+.container #content footer #view-on-github-link #view-on-github-btn {
+    border: 2px solid #fffff5;
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.container #content footer #socials-container {
+    grid-column: 3 / 4;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 32px;
+    width: 100%;
+}
+
+@media (max-width: 576px){
+    .container #content footer #view-on-github-link {
+        grid-column: 1 / 3;
+        justify-self: flex-start;
+    }
+
+    .container #content footer #view-on-github-link #view-on-github-btn {
+        padding: 8px;
+        font-size: var(--fs-300);
+        word-break: keep-all;
+    }
+
+    .container #content footer #socials-container {
+        gap: 16px;
+    }
+}
