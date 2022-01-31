@@ -47,8 +47,8 @@ async function init() {
     orbitControls.target.set(0, 1.5, 0);
     orbitControls.maxPolarAngle = Math.PI * 0.55;
     orbitControls.enableDamping = true;
-    orbitControls.panSpeed = 0.8;
     orbitControls.rotateSpeed = 0.8;
+    orbitControls.enablePan = false;
     orbitControls.update();
 
     // Modifying renderer
@@ -166,9 +166,11 @@ async function init() {
 }
 
 // Function to start rendering
-function start(time) {
+function start() {
     requestAnimationFrame(start);
     orbitControls.update();
+    sailboatMesh.scene.rotateX(Math.sin(Date.now()/650) / 750);
+    sailboatMesh.scene.rotateZ(Math.cos(Date.now()/650) / 750);
     seaMesh.material.uniforms.time.value += 1 / 50;
     renderer.render(scene, camera);
 }
