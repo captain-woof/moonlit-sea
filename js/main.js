@@ -21,12 +21,10 @@ let camera = null;
 let scene = null;
 let renderer = null;
 let orbitControls = null;
-let canvas = null;
-let sceneContainer = document.querySelector("#scene-container");
-let sceneAspectRatio = sceneContainer.clientWidth / sceneContainer.clientHeight;
+let canvas = document.querySelector("#scene-canvas");
+let sceneAspectRatio = canvas.clientWidth / canvas.clientHeight;
 let gltfLoader = null;
 let textureLoader = null;
-let gui = null;
 let sailboatMesh = null;
 let seaMesh = null;
 let moonMesh = null;
@@ -39,11 +37,8 @@ async function init() {
     // Setting up globals
     camera = new THREE.PerspectiveCamera(60, sceneAspectRatio, 0.1, 20000);
     scene = new THREE.Scene();
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    canvas = renderer.domElement;
+    renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
     orbitControls = new OrbitControls(camera, canvas);
-    sceneContainer.appendChild(canvas);
-    gui = new GUI();
     gltfLoader = new GLTFLoader();
     textureLoader = new THREE.TextureLoader();
 
@@ -60,8 +55,16 @@ async function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.shadowMap.enabled = true;
 
-    // Sailboat
-    sailboatMesh = await gltfLoader.loadAsync(sailboatModelGltf);
+    // Loading textures and models
+    let moonTexture = null;
+    let skyTexture = null;
+    [sailboatMesh, moonTexture, skyTexture] = await Promise.all([
+        gltfLoader.loadAsync(sailboatModelGltf),
+        textureLoader.loadAsync(moonTextureImg),
+        textureLoader.loadAsync(skyTextureImg)
+    ])
+
+    // Sailboat    
     sailboatMesh.scene.position.set(0, 0, 0);
     sailboatMesh.scene.scale.set(0.0025, 0.0025, 0.0025);
     sailboatMesh.scene.rotation.set(0, -(Math.PI / 2), 0);
@@ -72,7 +75,6 @@ async function init() {
 
     // Moon
     let moonGeometry = new THREE.SphereGeometry(5, 75, 75);
-    let moonTexture = await textureLoader.loadAsync(moonTextureImg);
     let moonMaterial = new THREE.MeshBasicMaterial({
         map: moonTexture
     });
@@ -94,7 +96,6 @@ async function init() {
 
     // Sky
     let skyGeometry = new THREE.SphereGeometry(10000, 200, 200, 0);
-    let skyTexture = await textureLoader.loadAsync(skyTextureImg);
     skyTexture.wrapS = skyTexture.wrapT = THREE.MirroredRepeatWrapping;
     skyTexture.repeat.set(6, 6);
     let skyMaterial = new THREE.MeshBasicMaterial({
@@ -123,44 +124,52 @@ async function init() {
     seaMesh.receiveShadow = true;
     scene.add(seaMesh);
 
-    // Setting gui
-    let cameraFolder = gui.addFolder("Camera");
-    let cameraPositionFolder = cameraFolder.addFolder("position");
-    cameraPositionFolder.add(camera.position, "x", -50, 50).listen();
-    cameraPositionFolder.add(camera.position, "y", -50, 50).listen();
-    cameraPositionFolder.add(camera.position, "z", -50, 50).listen();
-    let seaMeshFolder = gui.addFolder("Sea");
-    let seaMeshRotationFolder = seaMeshFolder.addFolder("rotation");
-    seaMeshRotationFolder.add(seaMesh.rotation, "x", -Math.PI, Math.PI).listen();
-    seaMeshRotationFolder.add(seaMesh.rotation, "y", -Math.PI, Math.PI).listen();
-    seaMeshRotationFolder.add(seaMesh.rotation, "z", -Math.PI, Math.PI).listen();
-    let sailboatMeshFolder = gui.addFolder("Sailboat");
-    let seaboatMeshRotationFolder = sailboatMeshFolder.addFolder("rotation");
-    seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "x", -3, 3).listen();
-    seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "y", -3, 3).listen();
-    seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "z", -3, 3).listen();
-    let moonMeshFolder = gui.addFolder("Moon");
-    let moonMeshPositionFolder = moonMeshFolder.addFolder("Position");
-    moonMeshPositionFolder.add(moonMesh.position, "x", -45, 45).listen();
-    moonMeshPositionFolder.add(moonMesh.position, "y", -45, 45).listen();
-    moonMeshPositionFolder.add(moonMesh.position, "z", -45, 45).listen();
-    let moonLightHemisphereFolder = gui.addFolder("Moonlight hemisphere");
-    let moonLightHemispherePositionFolder = moonLightHemisphereFolder.addFolder("position");
-    moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "x", -10, 10).listen();
-    moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "y", -10, 10).listen();
-    moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "z", -10, 10).listen();
-    let skyMeshFolder = gui.addFolder("Sky");
-    let skyMeshRotationFolder = skyMeshFolder.addFolder("Rotation");
-    skyMeshRotationFolder.add(skyMesh.rotation, "x", -5, 5).listen();
-    skyMeshRotationFolder.add(skyMesh.rotation, "y", -5, 5).listen();
-    skyMeshRotationFolder.add(skyMesh.rotation, "z", -5, 5).listen();
+    // Setting gui (Only for Dev env)
+    if (import.meta.env.DEV) {
+        const gui = new GUI({ closed: true });
+        gui.domElement.parentElement.classList.add("hover-on-top");
+        
+        let cameraFolder = gui.addFolder("Camera");
+        let cameraPositionFolder = cameraFolder.addFolder("position");
+        cameraPositionFolder.add(camera.position, "x", -50, 50).listen();
+        cameraPositionFolder.add(camera.position, "y", -50, 50).listen();
+        cameraPositionFolder.add(camera.position, "z", -50, 50).listen();
+        let seaMeshFolder = gui.addFolder("Sea");
+        let seaMeshRotationFolder = seaMeshFolder.addFolder("rotation");
+        seaMeshRotationFolder.add(seaMesh.rotation, "x", -Math.PI, Math.PI).listen();
+        seaMeshRotationFolder.add(seaMesh.rotation, "y", -Math.PI, Math.PI).listen();
+        seaMeshRotationFolder.add(seaMesh.rotation, "z", -Math.PI, Math.PI).listen();
+        let sailboatMeshFolder = gui.addFolder("Sailboat");
+        let seaboatMeshRotationFolder = sailboatMeshFolder.addFolder("rotation");
+        seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "x", -3, 3).listen();
+        seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "y", -3, 3).listen();
+        seaboatMeshRotationFolder.add(sailboatMesh.scene.rotation, "z", -3, 3).listen();
+        let moonMeshFolder = gui.addFolder("Moon");
+        let moonMeshPositionFolder = moonMeshFolder.addFolder("Position");
+        moonMeshPositionFolder.add(moonMesh.position, "x", -45, 45).listen();
+        moonMeshPositionFolder.add(moonMesh.position, "y", -45, 45).listen();
+        moonMeshPositionFolder.add(moonMesh.position, "z", -45, 45).listen();
+        let moonLightHemisphereFolder = gui.addFolder("Moonlight hemisphere");
+        let moonLightHemispherePositionFolder = moonLightHemisphereFolder.addFolder("position");
+        moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "x", -10, 10).listen();
+        moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "y", -10, 10).listen();
+        moonLightHemispherePositionFolder.add(moonLightHemisphere.position, "z", -10, 10).listen();
+        let skyMeshFolder = gui.addFolder("Sky");
+        let skyMeshRotationFolder = skyMeshFolder.addFolder("Rotation");
+        skyMeshRotationFolder.add(skyMesh.rotation, "x", -5, 5).listen();
+        skyMeshRotationFolder.add(skyMesh.rotation, "y", -5, 5).listen();
+        skyMeshRotationFolder.add(skyMesh.rotation, "z", -5, 5).listen();
+    }
+
+    // Show canvas
+    canvas.classList.add("visible");
 }
 
 // Function to start rendering
 function start(time) {
     requestAnimationFrame(start);
     orbitControls.update();
-    seaMesh.material.uniforms.time.value += 1/50;
+    seaMesh.material.uniforms.time.value += 1 / 50;
     renderer.render(scene, camera);
 }
 
@@ -168,7 +177,7 @@ function start(time) {
 function startListeners() {
     // Listener to keep `windowAspectRatio` updated
     window.addEventListener('resize', () => {
-        sceneAspectRatio = (sceneContainer.clientWidth / sceneContainer.clientHeight);
+        sceneAspectRatio = (canvas.clientWidth / canvas.clientHeight);
         camera.aspect = sceneAspectRatio;
         camera.updateProjectionMatrix();
         renderer.setPixelRatio(sceneAspectRatio);
