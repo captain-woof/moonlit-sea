@@ -156,6 +156,13 @@ a {
     position: absolute;
 }
 
+.container #content #move-around-icon {
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    height: 42px;
+}
+
 .container #content footer {
     position: fixed;
     transform: translate(-50%, 0);
