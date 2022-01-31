@@ -1,20 +1,24 @@
 import * as THREE from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader"
 import { Water } from "three/examples/jsm/objects/Water"
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
 import { GUI } from 'dat.gui'
 
 // Assets
 const sailboatModelGltf = "/models/sailboat/scene.gltf";
 const moonTextureImg = "/images/moon.jpg";
 const skyTextureImg = "/images/sky.webp";
+const fontPath = "/fonts/comfortaa.json"
 
 // Colors
-let blueColor = "#513873";
-let blueLightColor = "#455377";
-let blueDarkColor = "#192e46";
-let whiteLightColor = "#98a6bb";
-let blackColor = "#000000";
+const blueColor = "#513873";
+const blueLightColor = "#455377";
+const blueDarkColor = "#192e46";
+const whiteLightColor = "#98a6bb";
+const blackColor = "#000000";
+const whiteColor = "#ffffff";
 
 // Globals
 let camera = null;
@@ -25,12 +29,15 @@ let canvas = document.querySelector("#scene-canvas");
 let sceneAspectRatio = canvas.clientWidth / canvas.clientHeight;
 let gltfLoader = null;
 let textureLoader = null;
+let fontLoader = null;
 let sailboatMesh = null;
 let seaMesh = null;
 let moonMesh = null;
 let skyMesh = null;
+let creditsMesh = null;
 let moonLight = null;
 let moonLightHemisphere = null;
+let font = null;
 
 // Function to initialise rendering
 async function init() {
@@ -41,6 +48,7 @@ async function init() {
     orbitControls = new OrbitControls(camera, canvas);
     gltfLoader = new GLTFLoader();
     textureLoader = new THREE.TextureLoader();
+    fontLoader = new FontLoader();
 
     // Modifying camera
     camera.position.set(1, 0.7, 7.8);
@@ -58,10 +66,11 @@ async function init() {
     // Loading textures and models
     let moonTexture = null;
     let skyTexture = null;
-    [sailboatMesh, moonTexture, skyTexture] = await Promise.all([
+    [sailboatMesh, moonTexture, skyTexture, font] = await Promise.all([
         gltfLoader.loadAsync(sailboatModelGltf),
         textureLoader.loadAsync(moonTextureImg),
-        textureLoader.loadAsync(skyTextureImg)
+        textureLoader.loadAsync(skyTextureImg),
+        fontLoader.loadAsync(fontPath)
     ])
 
     // Sailboat    
@@ -74,7 +83,7 @@ async function init() {
     scene.add(sailboatMesh.scene);
 
     // Moon
-    let moonGeometry = new THREE.SphereGeometry(5, 75, 75);
+    let moonGeometry = new THREE.SphereGeometry(7, 75, 75);
     let moonMaterial = new THREE.MeshBasicMaterial({
         map: moonTexture
     });
@@ -124,11 +133,23 @@ async function init() {
     seaMesh.receiveShadow = true;
     scene.add(seaMesh);
 
+    // Credits
+    let creditGeometry = new TextGeometry("Created by Sohail", {
+        font: font,
+        size: 2.5,
+        height: 0.5
+    });
+    let creditMaterial = new THREE.MeshPhongMaterial({ color: whiteColor });
+    creditsMesh = new THREE.Mesh(creditGeometry, creditMaterial);
+    creditsMesh.position.set(25, 0, 27);
+    creditsMesh.rotation.set(0, Math.PI, 0);
+    scene.add(creditsMesh);
+
     // Setting gui (Only for Dev env)
     if (import.meta.env.DEV) {
         const gui = new GUI({ closed: true });
         gui.domElement.parentElement.classList.add("hover-on-top");
-        
+
         let cameraFolder = gui.addFolder("Camera");
         let cameraPositionFolder = cameraFolder.addFolder("position");
         cameraPositionFolder.add(camera.position, "x", -50, 50).listen();
@@ -159,6 +180,15 @@ async function init() {
         skyMeshRotationFolder.add(skyMesh.rotation, "x", -5, 5).listen();
         skyMeshRotationFolder.add(skyMesh.rotation, "y", -5, 5).listen();
         skyMeshRotationFolder.add(skyMesh.rotation, "z", -5, 5).listen();
+        let creditsMeshFolder = gui.addFolder("Credits");
+        let creditsMeshPositionFolder = creditsMeshFolder.addFolder("position");
+        creditsMeshPositionFolder.add(creditsMesh.position, "x", -30, 30);
+        creditsMeshPositionFolder.add(creditsMesh.position, "y", -30, 30);
+        creditsMeshPositionFolder.add(creditsMesh.position, "z", -30, 30);
+        let creditsMeshRotationFolder = creditsMeshFolder.addFolder("rotation");
+        creditsMeshRotationFolder.add(creditsMesh.rotation, "x", -10, 10);
+        creditsMeshRotationFolder.add(creditsMesh.rotation, "y", -10, 10);
+        creditsMeshRotationFolder.add(creditsMesh.rotation, "z", -10, 10);
     }
 
     // Show canvas
@@ -169,8 +199,9 @@ async function init() {
 function start() {
     requestAnimationFrame(start);
     orbitControls.update();
-    sailboatMesh.scene.rotateX(Math.sin(Date.now()/650) / 750);
-    sailboatMesh.scene.rotateZ(Math.cos(Date.now()/650) / 750);
+    creditsMesh.position.setY((Math.sin(Date.now() / 600) / 4) - 0.175);
+    sailboatMesh.scene.rotateX(Math.sin(Date.now() / 650) / 750);
+    sailboatMesh.scene.rotateZ(Math.cos(Date.now() / 650) / 750);
     seaMesh.material.uniforms.time.value += 1 / 50;
     renderer.render(scene, camera);
 }
